@@ -73,7 +73,9 @@ export default {
           }
           resources.enchantCraftingList.other[name] = { material: materials, collection: "NONE" }
         } else {
-          resources.invalidBazaarCraftingRecipe.push(name)
+	  if (!(name in resources.invalidBazaarCraftingRecipe)) {
+	    resources.invalidBazaarCraftingRecipe.push(name)
+	  }
         }
       }
     }
