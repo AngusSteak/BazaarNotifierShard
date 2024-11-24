@@ -1381,7 +1381,11 @@
 		"ENCHANTMENT_LAPIDARY_3": "Lapidary III",
 		"ENCHANTMENT_LAPIDARY_2": "Lapidary II",
 		"ENCHANTMENT_LAPIDARY_1": "Lapidary I",
-		"ENCHANTMENT_LAPIDARY_5": "Lapidary V"
+		"ENCHANTMENT_LAPIDARY_5": "Lapidary V",
+		"ENCHANTED_HAY_BALE": "Enchanted Hay Bale",
+		"SQUEAKY_TOY": "Squeaky Toy",
+		"PESTHUNTING_GUIDE": "A Beginner's Guide to Pesthunting",
+		"ENCHANTED_WHEAT": "Enchanted Wheat"
 	},
 	"enchantCraftingList": {
 		"normal": {},
@@ -3387,6 +3391,20 @@
 			"ENCHANTED_UMBER": {
 				"material": [
 					"UMBER",
+					160
+				],
+				"collection": "NONE"
+			},
+			"ENCHANTED_HAY_BALE": {
+				"material": [
+					"ENCHANTED_WHEAT",
+					160
+				],
+				"collection": "NONE"
+			},
+			"ENCHANTED_WHEAT": {
+				"material": [
+					"WHEAT",
 					160
 				],
 				"collection": "NONE"
