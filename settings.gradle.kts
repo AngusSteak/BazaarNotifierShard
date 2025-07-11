@@ -9,11 +9,12 @@ pluginManagement {
         maven("https://maven.minecraftforge.net/")
         maven("https://repo.spongepowered.org/maven/")
         maven("https://repo.sk1er.club/repository/maven-releases/")
+        maven("https://repo.essential.gg/repository/maven-releases/")
     }
     resolutionStrategy {
         eachPlugin {
             when (requested.id.id) {
-                "gg.essential.loom" -> useModule("gg.essential:loom:${requested.version}")
+                "gg.essential.loom" -> useModule("gg.essential:architectury-loom:${requested.version}")
             }
         }
     }
