@@ -8,7 +8,7 @@ plugins {
     id("de.undercouch.download").version("5.3.0")
     id("com.github.johnrengelman.shadow") version "7.1.2"
     
-    id("gg.essential.loom")
+    id("gg.essential.loom") version "1.9.29"
 
 }
 
