@@ -14,7 +14,7 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             when (requested.id.id) {
-                "gg.essential.loom" -> useModule("gg.essential:architectury-loom:${requested.version}")
+                "gg.essential.loom" -> useModule("gg.essential:loom:${requested.version}")
             }
         }
     }
