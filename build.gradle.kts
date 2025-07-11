@@ -54,7 +54,7 @@ dependencies {
 
 
 val resourcesFile = "src/main/resources/resources.json"
-val resourcesURL = "https://raw.githubusercontent.com/symt/BazaarNotifier/resources/resources.json"
+val resourcesURL = "https://raw.githubusercontent.com/AngusSteak/BazaarNotifierShard/resources/resources.json"
 
 tasks.processResources {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
