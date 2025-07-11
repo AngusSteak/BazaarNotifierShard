@@ -4,10 +4,12 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 plugins {
     idea
     java
-    id("gg.essential.loom") version "0.10.0"
     id("dev.architectury.architectury-pack200") version "0.1.3"
     id("de.undercouch.download").version("5.3.0")
     id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("gg.essential.multi-version.root") version "0.6.7"
+    id("gg.essential.loom")
+    id("gg.essential.defaults")
 
 }
 
