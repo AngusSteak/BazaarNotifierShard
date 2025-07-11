@@ -5,11 +5,9 @@ plugins {
     idea
     java
     id("dev.architectury.architectury-pack200") version "0.1.3"
-    id("de.undercouch.download").version("5.3.0")
+    id("de.undercouch.download") version "5.3.0"
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    
     id("gg.essential.loom") version "1.9.29"
-
 }
 
 group = "dev.meyi.bazaarnotifier"
@@ -21,17 +19,10 @@ java {
 }
 
 loom {
-    //launchConfigs.named("client") {
-        //arg("--tweakClass", "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker")
-    //}
     log4jConfigs.from(file("log4j2.xml"))
     forge {
         pack200Provider.set(dev.architectury.pack200.java.Pack200Adapter())
     }
-}
-
-tasks.named<ProcessResources>("processResources") {
-    destinationDir = file("$buildDir/classes/java/main")
 }
 
 val shade: Configuration by configurations.creating {
@@ -53,90 +44,78 @@ dependencies {
     shade("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta17")
 }
 
-
-
-val resourcesFile = "src/main/resources/resources.json"
+val resourcesFile = file("src/main/resources/resources.json")
 val resourcesURL = "https://raw.githubusercontent.com/AngusSteak/BazaarNotifierShard/resources/resources.json"
 
-tasks.processResources {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-
-    inputs.property("version", project.version)
-    inputs.property("mcversion", "1.8.9")
-    from(sourceSets["main"].resources.srcDirs) {
-        include("mcmod.info")
-        expand("version" to project.version, "mcversion" to "1.8.9")
-    }
-    from(sourceSets["main"].resources.srcDirs) {
-        exclude("mcmod.info")
-    }
-
-    dependsOn("retrieveResources")
-    finalizedBy("destroyResources")
-    outputs.upToDateWhen { false }
-}
-
-tasks.register<DefaultTask>("destroyResources") {
-    doLast {
-        if (File(resourcesFile).exists()) {
-            project.delete(files(resourcesFile))
-        }
-    }
-    outputs.upToDateWhen { false }
-}
-
-task.register<DefaultTask>("retrieveResources") {
-    val dest = File(resourcesFile)
-
-    if (dest.exists()) {
-        project.delete(files(resourcesFile))
-    }
-    task.register<Download>("download-task") {
+tasks {
+    val downloadTask by registering(Download::class) {
         src(resourcesURL)
         dest(resourcesFile)
+        overwrite(true)
     }
-    dependsOn("download-task")
-}
 
-tasks{
-    withType(JavaCompile::class) {
+    val retrieveResources by registering {
+        dependsOn(downloadTask)
+        doLast {
+            println("Resources retrieved from $resourcesURL")
+        }
+    }
+
+    val destroyResources by registering {
+        doLast {
+            if (resourcesFile.exists()) {
+                delete(resourcesFile)
+                println("Deleted: $resourcesFile")
+            }
+        }
+    }
+
+    processResources {
+        dependsOn(retrieveResources)
+        finalizedBy(destroyResources)
+
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        inputs.property("version", project.version)
+        inputs.property("mcversion", "1.8.9")
+
+        from(sourceSets["main"].resources.srcDirs) {
+            include("mcmod.info")
+            expand("version" to project.version, "mcversion" to "1.8.9")
+        }
+
+        from(sourceSets["main"].resources.srcDirs) {
+            exclude("mcmod.info")
+        }
+
+        outputs.upToDateWhen { false }
+    }
+
+    withType<JavaCompile> {
         options.encoding = "UTF-8"
     }
-    withType(Jar::class) {
-        manifest.attributes.run {
-            this["FMLCorePluginContainsFMLMod"] = "true"
-            this["ForceLoadAsMod"] = "true"
-        }
-        named<ShadowJar>("shadowJar") {
-            archiveClassifier.set("dev")
-            configurations = listOf(shade)
-            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        }
 
-        remapJar {
-            dependsOn(shadowJar)
-            archiveFile.set(shadowJar.get().archiveFile)
-            archiveClassifier.set("")
-        }
+    val shadowJar = named<ShadowJar>("shadowJar") {
+        archiveClassifier.set("dev")
+        configurations = listOf(shade)
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
 
-       jar {
-            manifest {
-                attributes(
-                    mapOf(
-                        "ModSide" to "CLIENT",
-                        "ForceLoadAsMod" to true,
-                        "TweakOrder" to "0",
-                        "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker"
-                    )
-                )
-            }
-            dependsOn(shadowJar)
-            archiveClassifier.set("")
-            enabled = false
-        }
-       processResources {
-           duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    named<Jar>("remapJar") {
+        dependsOn(shadowJar)
+        archiveClassifier.set("")
+    }
 
-       }
+    named<Jar>("jar") {
+        enabled = false
+    }
+
+    named<Jar>("shadowJar") {
+        manifest.attributes(
+            "FMLCorePluginContainsFMLMod" to "true",
+            "ForceLoadAsMod" to "true",
+            "ModSide" to "CLIENT",
+            "TweakOrder" to "0",
+            "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker"
+        )
     }
 }
