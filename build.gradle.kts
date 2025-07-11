@@ -1,3 +1,4 @@
+import net.fabricmc.loom.task.RemapJarTask
 import de.undercouch.gradle.tasks.download.Download
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
@@ -100,8 +101,8 @@ tasks {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
-    named<RemapJarTask>("remapJar") {
-        dependsOn(shadowJar)
+    tasks.named<RemapJarTask>("remapJar") {
+        dependsOn(tasks.named<ShadowJar>("shadowJar"))
         archiveClassifier.set("")
     }
 
