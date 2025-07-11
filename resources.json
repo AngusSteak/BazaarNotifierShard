@@ -1,5 +1,15 @@
 {
 	"bazaarConversions": {
+		"SHARD_SEA_SERPENT": "Sea Serpent",
+		"SHARD_MEGALITH": "Megalith",
+		"SHARD_BASILISK": "Basilisk",
+		"SHARD_CAIMAN": "Caiman",
+		"SHARD_IGUANA": "Iguana",
+		"SHARD_KOMODO_DRAGON": "Komodo Dragon",
+		"SHARD_WYVERN": "Wyvern",
+		"SHARD_NAGA": "Naga",
+		"SHARD_TIAMAT": "Tiamat",
+		"SHARD_HIDEONBOX": "Hideonbox",
 		"ENCHANTED_RAW_CHICKEN": "Enchanted Raw Chicken",
 		"INK_SACK:3": "Cocoa Beans",
 		"BROWN_MUSHROOM": "Brown Mushroom",
