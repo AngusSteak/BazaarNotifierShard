@@ -1,6 +1,6 @@
-import de.undercouch.gradle.tasks.download.Download
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import dev.architectury.pack200.java.Pack200Adapter
+import de.undercouch.gradle.tasks.download.Download
+import net.fabricmc.loom.task.RemapJarTask
 
 plugins {
     idea
@@ -13,16 +13,17 @@ plugins {
 
 group = "dev.meyi.bazaarnotifier"
 version = "1.7.5"
-val mod_id = "bazaarnotifier"
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(8))
 }
 
+val mod_id = "bazaarnotifier"
+
 loom {
     log4jConfigs.from(file("log4j2.xml"))
     forge {
-        pack200Provider.set(Pack200Adapter())
+        pack200Provider.set(dev.architectury.pack200.java.Pack200Adapter())
     }
 }
 
@@ -45,29 +46,27 @@ dependencies {
     shade("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta17")
 }
 
-val resourcesFile = file("src/main/resources/resources.json")
+val resourcesFile = "src/main/resources/resources.json"
 val resourcesURL = "https://raw.githubusercontent.com/AngusSteak/BazaarNotifierShard/resources/resources.json"
 
 tasks.register<Download>("downloadResources") {
     src(resourcesURL)
     dest(resourcesFile)
-    overwrite(false)
+    overwrite(true)
 }
 
-tasks.register("destroyResources") {
-    doLast {
-        if (resourcesFile.exists()) {
-            delete(resourcesFile)
-            println("Destroyed existing resource file.")
-        }
-    }
+tasks.register<Delete>("destroyResources") {
+    delete(file(resourcesFile))
 }
 
 tasks.processResources {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    dependsOn("downloadResources")
+    finalizedBy("destroyResources")
 
     inputs.property("version", project.version)
     inputs.property("mcversion", "1.8.9")
+
     from(sourceSets["main"].resources.srcDirs) {
         include("mcmod.info")
         expand("version" to project.version, "mcversion" to "1.8.9")
@@ -75,43 +74,43 @@ tasks.processResources {
     from(sourceSets["main"].resources.srcDirs) {
         exclude("mcmod.info")
     }
-
-    dependsOn("downloadResources")
-    finalizedBy("destroyResources")
     outputs.upToDateWhen { false }
 }
 
-tasks {
-    withType<JavaCompile> {
-        options.encoding = "UTF-8"
-    }
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}
 
-    withType<Jar> {
-        manifest.attributes["FMLCorePluginContainsFMLMod"] = "true"
-        manifest.attributes["ForceLoadAsMod"] = "true"
-    }
+tasks.named<ShadowJar>("shadowJar") {
+    archiveClassifier.set("dev")
+    configurations = listOf(shade)
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    destinationDirectory.set(layout.buildDirectory.dir("devlibs"))
+}
 
-    named<ShadowJar>("shadowJar") {
-        archiveClassifier.set("dev")
-        configurations = listOf(shade)
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    }
+tasks.named<RemapJarTask>("remapJar") {
+    dependsOn(tasks.named("shadowJar"))
+    input.set(layout.buildDirectory.file("devlibs/${project.name}-${project.version}-dev.jar"))
+    archiveClassifier.set("")
+}
 
-    named("remapJar") {
-        dependsOn("shadowJar")
-    }
+tasks.named<Jar>("jar") {
+    enabled = false
+}
 
-    named<Jar>("jar") {
-        manifest {
-            attributes(
-                mapOf(
-                    "ModSide" to "CLIENT",
-                    "ForceLoadAsMod" to true,
-                    "TweakOrder" to "0",
-                    "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker"
-                )
+tasks.register<Jar>("customJar") {
+    dependsOn(tasks.named("shadowJar"))
+    from(tasks.named<ShadowJar>("shadowJar").get().outputs.files)
+    archiveClassifier.set("")
+    manifest {
+        attributes(
+            mapOf(
+                "ModSide" to "CLIENT",
+                "ForceLoadAsMod" to true,
+                "FMLCorePluginContainsFMLMod" to true,
+                "TweakOrder" to "0",
+                "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker"
             )
-        }
-        enabled = false
+        )
     }
 }
