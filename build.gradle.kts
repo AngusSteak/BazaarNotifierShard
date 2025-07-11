@@ -1,7 +1,6 @@
 import de.undercouch.gradle.tasks.download.Download
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import net.fabricmc.loom.task.RemapJarTask
-import java.net.URL
+import dev.architectury.pack200.java.Pack200Adapter
 
 plugins {
     idea
@@ -23,7 +22,7 @@ java {
 loom {
     log4jConfigs.from(file("log4j2.xml"))
     forge {
-        pack200Provider.set(dev.architectury.pack200.java.Pack200Adapter())
+        pack200Provider.set(Pack200Adapter())
     }
 }
 
@@ -49,56 +48,47 @@ dependencies {
 val resourcesFile = file("src/main/resources/resources.json")
 val resourcesURL = "https://raw.githubusercontent.com/AngusSteak/BazaarNotifierShard/resources/resources.json"
 
+tasks.register<Download>("downloadResources") {
+    src(resourcesURL)
+    dest(resourcesFile)
+    overwrite(false)
+}
+
+tasks.register("destroyResources") {
+    doLast {
+        if (resourcesFile.exists()) {
+            delete(resourcesFile)
+            println("Destroyed existing resource file.")
+        }
+    }
+}
+
+tasks.processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+    inputs.property("version", project.version)
+    inputs.property("mcversion", "1.8.9")
+    from(sourceSets["main"].resources.srcDirs) {
+        include("mcmod.info")
+        expand("version" to project.version, "mcversion" to "1.8.9")
+    }
+    from(sourceSets["main"].resources.srcDirs) {
+        exclude("mcmod.info")
+    }
+
+    dependsOn("downloadResources")
+    finalizedBy("destroyResources")
+    outputs.upToDateWhen { false }
+}
+
 tasks {
-    processResources {
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE
-
-        inputs.property("version", project.version)
-        inputs.property("mcversion", "1.8.9")
-
-        from(sourceSets["main"].resources.srcDirs) {
-            include("mcmod.info")
-            expand("version" to project.version, "mcversion" to "1.8.9")
-        }
-        from(sourceSets["main"].resources.srcDirs) {
-            exclude("mcmod.info")
-        }
-
-        dependsOn("retrieveResources")
-        finalizedBy("destroyResources")
-        outputs.upToDateWhen { false }
-    }
-
-    register<DefaultTask>("destroyResources") {
-        doLast {
-            if (resourcesFile.exists()) {
-                delete(resourcesFile)
-            }
-        }
-    }
-
-    register<DefaultTask>("retrieveResources") {
-        doLast {
-            if (resourcesFile.exists()) {
-                delete(resourcesFile)
-            }
-
-            download.configure {
-                src(URL(resourcesURL))
-                dest(resourcesFile)
-                overwrite(false)
-            }
-        }
-    }
-
-    register<Download>("download") {
-        src(URL(resourcesURL))
-        dest(resourcesFile)
-        overwrite(false)
-    }
-
     withType<JavaCompile> {
         options.encoding = "UTF-8"
+    }
+
+    withType<Jar> {
+        manifest.attributes["FMLCorePluginContainsFMLMod"] = "true"
+        manifest.attributes["ForceLoadAsMod"] = "true"
     }
 
     named<ShadowJar>("shadowJar") {
@@ -107,13 +97,8 @@ tasks {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
-    named<RemapJarTask>("remapJar") {
-        dependsOn(named<ShadowJar>("shadowJar"))
-        archiveClassifier.set("")
-    }
-
-    named<Jar>("jar") {
-        enabled = false
+    named("remapJar") {
+        dependsOn("shadowJar")
     }
 
     named<Jar>("jar") {
@@ -127,5 +112,6 @@ tasks {
                 )
             )
         }
+        enabled = false
     }
 }
