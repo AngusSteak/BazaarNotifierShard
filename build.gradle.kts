@@ -100,7 +100,7 @@ tasks {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
-    named<Jar>("remapJar") {
+    named<RemapJarTask>("remapJar") {
         dependsOn(shadowJar)
         archiveClassifier.set("")
     }
