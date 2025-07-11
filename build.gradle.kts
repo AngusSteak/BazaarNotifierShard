@@ -39,6 +39,7 @@ val shade: Configuration by configurations.creating {
 
 repositories {
     mavenCentral()
+    maven("https://maven.essential.gg/releases")
     maven("https://repo.spongepowered.org/maven/")
     maven("https://repo.polyfrost.cc/releases")
 }
