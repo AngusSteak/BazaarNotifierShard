@@ -21,17 +21,17 @@ java {
 }
 
 loom {
-    launchConfigs.named("client") {
-        arg("--tweakClass", "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker")
-    }
+    //launchConfigs.named("client") {
+        //arg("--tweakClass", "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker")
+    //}
     log4jConfigs.from(file("log4j2.xml"))
     forge {
         pack200Provider.set(dev.architectury.pack200.java.Pack200Adapter())
     }
 }
 
-sourceSets.main {
-    output.setResourcesDir(file("$buildDir/classes/java/main"))
+tasks.named<ProcessResources>("processResources") {
+    destinationDir = file("$buildDir/classes/java/main")
 }
 
 val shade: Configuration by configurations.creating {
@@ -76,7 +76,7 @@ tasks.processResources {
     outputs.upToDateWhen { false }
 }
 
-task<DefaultTask>("destroyResources") {
+tasks.register<DefaultTask>("destroyResources") {
     doLast {
         if (File(resourcesFile).exists()) {
             project.delete(files(resourcesFile))
@@ -85,13 +85,13 @@ task<DefaultTask>("destroyResources") {
     outputs.upToDateWhen { false }
 }
 
-task<DefaultTask>("retrieveResources") {
+task.register<DefaultTask>("retrieveResources") {
     val dest = File(resourcesFile)
 
     if (dest.exists()) {
         project.delete(files(resourcesFile))
     }
-    task<Download>("download-task") {
+    task.register<Download>("download-task") {
         src(resourcesURL)
         dest(resourcesFile)
     }
@@ -114,7 +114,8 @@ tasks{
         }
 
         remapJar {
-            input.set(shadowJar.get().archiveFile)
+            dependsOn(shadowJar)
+            archiveFile.set(shadowJar.get().archiveFile)
             archiveClassifier.set("")
         }
 
