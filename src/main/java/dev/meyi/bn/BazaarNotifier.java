@@ -54,7 +54,7 @@ public class BazaarNotifier {
           + EnumChatFormatting.BOLD + " [ " + EnumChatFormatting.YELLOW + "BazaarNotifier"
           + EnumChatFormatting.GOLD + "" + EnumChatFormatting.BOLD + " ] "
           + EnumChatFormatting.STRIKETHROUGH + "-------";
-  public static final String RESOURCE_LOCATION = "https://raw.githubusercontent.com/symt/BazaarNotifier/resources/resources.json";
+  public static final String RESOURCE_LOCATION = "https://raw.githubusercontent.com/AngusSteak/BazaarNotifierShard/resources/resources.json";
   public static DecimalFormat df = new DecimalFormat("#,##0.0");
   public static DecimalFormat dfNoDecimal = new DecimalFormat("#,###");
 
