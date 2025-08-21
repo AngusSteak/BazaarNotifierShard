@@ -10,6 +10,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvents;
 import org.lwjgl.opengl.GL11;
 
 
@@ -118,5 +120,6 @@ public class RenderUtils {
     GL11.glScalef((float) Math.pow(moduleScale, -1), (float) Math.pow(moduleScale, -1), 1);
   }
 }
+
 
 
