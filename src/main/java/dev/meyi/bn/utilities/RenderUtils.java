@@ -106,7 +106,7 @@ public class RenderUtils {
                 2.0F, // Volume
                 1.0F // Pitch
             );
-        }
+        
     }
   }
 
@@ -118,6 +118,7 @@ public class RenderUtils {
     GL11.glScalef((float) Math.pow(moduleScale, -1), (float) Math.pow(moduleScale, -1), 1);
   }
 }
+
 
 
 
