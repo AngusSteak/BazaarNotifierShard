@@ -101,6 +101,12 @@ public class RenderUtils {
               + messageColor + BazaarNotifier.df.format(order.pricePerUnit)
               + EnumChatFormatting.GRAY + ")"
       ));
+      Minecraft.getMinecraft().thePlayer.playSound(
+                SoundEvents.BLOCK_NOTE_BLOCK_HARP, // Note block harp sound
+                SoundCategory.PLAYERS, // Sound category
+                2.0F, // Volume
+                1.0F // Pitch
+            );
     }
   }
 
@@ -112,4 +118,5 @@ public class RenderUtils {
     GL11.glScalef((float) Math.pow(moduleScale, -1), (float) Math.pow(moduleScale, -1), 1);
   }
 }
+
 
