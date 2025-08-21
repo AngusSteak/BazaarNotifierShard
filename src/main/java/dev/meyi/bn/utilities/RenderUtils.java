@@ -10,8 +10,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
 import org.lwjgl.opengl.GL11;
 
 
@@ -104,11 +102,11 @@ public class RenderUtils {
               + EnumChatFormatting.GRAY + ")"
       ));
       Minecraft.getMinecraft().thePlayer.playSound(
-                SoundEvents.BLOCK_NOTE_BLOCK_HARP, // Note block harp sound
-                SoundCategory.PLAYERS, // Sound category
+                "note.harp", // Sound name for note block harp in 1.8.9
                 2.0F, // Volume
                 1.0F // Pitch
             );
+        }
     }
   }
 
@@ -120,6 +118,7 @@ public class RenderUtils {
     GL11.glScalef((float) Math.pow(moduleScale, -1), (float) Math.pow(moduleScale, -1), 1);
   }
 }
+
 
 
 
